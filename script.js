@@ -1,10 +1,12 @@
 //const statusDisplay = document.querySelector('.g_status');
 const assessmentDisplay = document.querySelector('.g_assessment');
+const diffDisplay = document.querySelector('.diff_val');
 
 let gameActive;
 let currentPlayer;
 let gameState;
 let model;
+let diff = 1;
 
 // Message generating functions
 const currText = () => `${currentPlayer === 1 ? "X" : "O"}`;
@@ -17,13 +19,55 @@ init()
 async function init()
 {
 	// Load the model
-	model = await tf.loadLayersModel('model/model.json');
+	await loadAgent(diff)
 	
 	// Start the game
 	handleRestartGame()
 }
 
-async function computerMove()
+async function loadAgent(diff)
+{
+	if (diff == 0)
+	{
+		model = await tf.loadLayersModel('model/5000/model.json');
+		diffDisplay.innerHTML = "5000"
+	}
+	else if (diff == 1)
+	{
+		model = await tf.loadLayersModel('model/20000/model.json');
+		diffDisplay.innerHTML = "20000"
+	}
+}
+
+async function diffUp()
+{
+	if(++diff > 1)
+	{
+		diff--
+	}
+	else
+	{
+		await loadAgent(diff)
+	}
+	
+	assessmentDisplay.innerHTML = model.predict(tf.tensor([gameState])).dataSync();
+}
+
+async function diffDown()
+{
+	if(--diff < 0)
+	{
+		diff++
+	}
+	else
+	{
+		await loadAgent(diff)
+	}
+	
+	assessmentDisplay.innerHTML = model.predict(tf.tensor([gameState])).dataSync();
+}
+
+function computerMove()
 {
 	if(!gameActive)
 		return;
@@ -161,3 +205,5 @@ function handleRestartGame()
 document.querySelectorAll('.cell').forEach(cell => cell.addEventListener('click', handleCellClick));
 document.querySelector('.g_restart').addEventListener('click', init);
 document.querySelector('.g_computer').addEventListener('click', computerMove);
+document.querySelector('.diff_up').addEventListener('click', diffUp);
+document.querySelector('.diff_down').addEventListener('click', diffDown);
