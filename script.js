@@ -177,7 +177,6 @@ function handleResultValidation() {
 		for(let i = 0; i <= 2; i++)
 		{
 			document.querySelectorAll('.cell')[winningConditions[winI][i]].style.background = "LightPink";
-			console.log(document.querySelectorAll('.cell')[winningConditions[winI][i]].style)
 		}
 		if(human === gameState[Math.floor(winningConditions[winI][0]/3)][winningConditions[winI][0] % 3])
 			human = -1;
@@ -190,7 +189,7 @@ function handleResultValidation() {
 	if (roundDraw)
 	{
 		gameActive = false;
-		human = currentPlayer === 1 ? -1 : 1;
+		human = human == 1 ? -1 : 1;
 		return;
 	}
 	
@@ -199,7 +198,6 @@ function handleResultValidation() {
 
 function handleCellClick(clickedCellEvent)
 {
-	console.log(human)
 	const clickedCell = clickedCellEvent.target;
 	
 	// Determine the cell's position
