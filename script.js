@@ -1,30 +1,29 @@
 const statusDisplay = document.querySelector('.g_status');
 
-(async() => {
-const model = await tf.loadLayersModel('/model/model.json');
-})();
+const model = tf.loadLayersModel('model/model.json');
 
 let gameActive = true;
-let currentPlayer = "X";
-let gameState = ["", "", "", "", "", "", "", "", ""];
+let currentPlayer = 1;
+let gameState = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
 
 // Message generating functions
-const winningMessage = () => `Player ${currentPlayer} wins!`;
+const currText = () => `${currentPlayer === 1 ? "X" : "O"}`;
+const winningMessage = () => `Player ${currText()} wins!`;
 const drawMessage = () => `Game ended in a draw!`;
-const currentPlayerTurn = () => `It's ${currentPlayer}'s turn`;
+const currentPlayerTurn = () => `It's ${currText()}'s turn`;
 
 statusDisplay.innerHTML = currentPlayerTurn();
 
 function handleCellPlayed(clickedCell, clickedCellIndex)
 {
 	// Set the state of the cell and update gameState
-	gameState[clickedCellIndex] = currentPlayer;
-	clickedCell.innerHTML = currentPlayer;
+	gameState[Math.floor(clickedCellIndex/3)][clickedCellIndex % 3] = currentPlayer;
+	clickedCell.innerHTML = currentPlayer === 1 ? "X" : "O";
 }
 
 function handlePlayerChange()
 {
-	currentPlayer = currentPlayer === "X" ? "O" : "X";
+	currentPlayer = currentPlayer === 1 ? -1 : 1;
 	statusDisplay.innerHTML = currentPlayerTurn();
 }
 
@@ -42,13 +41,15 @@ const winningConditions = [
 ];
 function handleResultValidation() {
 	let roundWon = false;
+	
+	model.predict(tf.tensor(gameState));
 	for (let i = 0; i <= 7; i++)
 	{
 		const winCondition = winningConditions[i];
-		let a = gameState[winCondition[0]];
-		let b = gameState[winCondition[1]];
-		let c = gameState[winCondition[2]];
-		if (a === '' || b === '' || c === '')
+		let a = gameState[Math.floor(winCondition[0]/3)][winCondition[0] % 3];
+		let b = gameState[Math.floor(winCondition[1]/3)][winCondition[1] % 3];
+		let c = gameState[Math.floor(winCondition[2]/3)][winCondition[2] % 3];
+		if (a === 0 || b === 0 || c === 0)
 		{
 			continue;
 		}
@@ -65,7 +66,7 @@ function handleResultValidation() {
 		return;
 	}
 		
-		let roundDraw = !gameState.includes("");
+		let roundDraw = !gameState[0].includes(0) && !gameState[1].includes(0) && !gameState[2].includes(0);
 		if (roundDraw)
 		{
 			statusDisplay.innerHTML = drawMessage();
@@ -84,11 +85,12 @@ function handleCellClick(clickedCellEvent)
 	const clickedCellIndex = parseInt(clickedCell.getAttribute('data-cell-index'));
 
 	// Return if cell cannot be played
-	if (gameState[clickedCellIndex] !== "" || !gameActive)
+	if (gameState[Math.floor(clickedCellIndex/3)][clickedCellIndex % 3] !== 0 || !gameActive)
 	{
 		return;
 	}
 	
+	// Perform the necessary changes
 	handleCellPlayed(clickedCell, clickedCellIndex);
 	handleResultValidation();
 }
@@ -96,8 +98,8 @@ function handleCellClick(clickedCellEvent)
 function handleRestartGame()
 {
 	gameActive = true;
-	currentPlayer = "X";
-	gameState = ["", "", "", "", "", "", "", "", ""];
+	currentPlayer = 1;
+	gameState = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
 	statusDisplay.innerHTML = currentPlayerTurn();
 	document.querySelectorAll('.cell').forEach(cell => cell.innerHTML = "");
 }
