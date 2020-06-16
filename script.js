@@ -1,9 +1,11 @@
 //const statusDisplay = document.querySelector('.g_status');
 const assessmentDisplay = document.querySelector('.g_assessment');
 const diffDisplay = document.querySelector('.diff_val');
+const auto = document.querySelector('#auto');
 
 let gameActive;
 let currentPlayer;
+let human = 1;
 let gameState;
 let model;
 let diff = 4;
@@ -100,8 +102,7 @@ function computerMove()
 				mGameState = JSON.parse(JSON.stringify(gameState));
 				mGameState[i][j] = currentPlayer;
 				pred = currentPlayer * model.predict(tf.tensor([mGameState])).dataSync();
-				console.log(JSON.parse(JSON.stringify(mGameState)))
-				console.log(pred)
+				
 				if(pred > bestE)
 				{
 					bestE = pred;
@@ -123,8 +124,10 @@ function computerMove()
 
 function handleCellPlayed(clickedCell, clickedCellIndex)
 {
-	// Set the state of the cell and update gameState
+	// Update gameState
 	gameState[Math.floor(clickedCellIndex/3)][clickedCellIndex % 3] = currentPlayer;
+	
+	// Set the state of the cell
 	clickedCell.innerHTML = currentPlayer === 1 ? "X" : "O";
 }
 
@@ -147,6 +150,7 @@ const winningConditions = [
 ];
 function handleResultValidation() {
 	let roundWon = false;
+	let winI = 0
 	
 	assessmentDisplay.value = 100 * model.predict(tf.tensor([gameState])).dataSync();
 	
@@ -163,27 +167,39 @@ function handleResultValidation() {
 		if (a === b && b === c)
 		{
 			roundWon = true;
+			winI = i;
 			break
 		}
 	}
 	if (roundWon)
 	{
 		gameActive = false;
+		for(let i = 0; i <= 2; i++)
+		{
+			document.querySelectorAll('.cell')[winningConditions[winI][i]].style.background = "LightPink";
+			console.log(document.querySelectorAll('.cell')[winningConditions[winI][i]].style)
+		}
+		if(human === gameState[Math.floor(winningConditions[winI][0]/3)][winningConditions[winI][0] % 3])
+			human = -1;
+		else
+			human = 1;
 		return;
 	}
 		
-		let roundDraw = !gameState[0].includes(0) && !gameState[1].includes(0) && !gameState[2].includes(0);
-		if (roundDraw)
-		{
-			gameActive = false;
-			return;
-		}
-		
-		handlePlayerChange();
+	let roundDraw = !gameState[0].includes(0) && !gameState[1].includes(0) && !gameState[2].includes(0);
+	if (roundDraw)
+	{
+		gameActive = false;
+		human = currentPlayer === 1 ? -1 : 1;
+		return;
+	}
+	
+	handlePlayerChange();
 }
 
 function handleCellClick(clickedCellEvent)
 {
+	console.log(human)
 	const clickedCell = clickedCellEvent.target;
 	
 	// Determine the cell's position
@@ -196,8 +212,13 @@ function handleCellClick(clickedCellEvent)
 	}
 	
 	// Perform the necessary changes
+	human = currentPlayer;
+	
 	handleCellPlayed(clickedCell, clickedCellIndex);
 	handleResultValidation();
+	
+	if(auto.checked)
+		computerMove();
 }
 
 function handleRestartGame()
@@ -206,8 +227,12 @@ function handleRestartGame()
 	currentPlayer = 1;
 	gameState = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
 	document.querySelectorAll('.cell').forEach(cell => cell.innerHTML = "");
+	document.querySelectorAll('.cell').forEach(cell => cell.style.background = "");
 	
 	assessmentDisplay.value = 100 * model.predict(tf.tensor([gameState])).dataSync();
+	
+	if(human !== 1 && auto.checked)
+		computerMove();
 }
 
 // Listeners
