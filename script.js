@@ -6,7 +6,7 @@ let gameActive;
 let currentPlayer;
 let gameState;
 let model;
-let diff = 2;
+let diff = 4;
 
 // Message generating functions
 const currText = () => `${currentPlayer === 1 ? "X" : "O"}`;
@@ -38,16 +38,16 @@ async function loadAgent(diff)
 			diffDisplay.innerHTML = "20000"
 			break;
 		case 2:
-			model = await tf.loadLayersModel('model/40000/model.json');
-			diffDisplay.innerHTML = "40000"
-			break;
-		case 3:
 			model = await tf.loadLayersModel('model/45x200/model.json');
 			diffDisplay.innerHTML = "9000 Self-Play (Steps of 200)"
 			break;
-		case 4:
+		case 3:
 			model = await tf.loadLayersModel('model/100x200/model.json');
 			diffDisplay.innerHTML = "20000 Self-Play (Steps of 200)"
+			break;
+		case 4:
+			model = await tf.loadLayersModel('model/40000/model.json');
+			diffDisplay.innerHTML = "40000"
 			break;
 	}
 }
