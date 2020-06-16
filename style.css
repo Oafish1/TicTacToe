@@ -1,14 +1,19 @@
 body {
     font-family: "Arial", sans-serif;
+	font-size: 17px;
 }
 section {
     text-align: center;
+}
+.g_assessment {
+    font-family: "Arial", sans-serif;
+	font-size: 12px;
 }
 .g_container {
     display: grid;
     grid-template-columns: repeat(3, auto);
     width: 306px;
-    margin: 50px auto;
+    margin: auto;
 }
 .cell {
     font-family: "Permanent Marker", cursive;
