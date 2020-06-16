@@ -37,11 +37,26 @@ async function loadAgent(diff)
 		model = await tf.loadLayersModel('model/20000/model.json');
 		diffDisplay.innerHTML = "20000"
 	}
+	switch(diff)
+	{
+		case 0:
+			model = await tf.loadLayersModel('model/5000/model.json');
+			diffDisplay.innerHTML = "5000"
+			break;
+		case 1:
+			model = await tf.loadLayersModel('model/20000/model.json');
+			diffDisplay.innerHTML = "20000"
+			break;
+		case 2:
+			model = await tf.loadLayersModel('model/45x200/model.json');
+			diffDisplay.innerHTML = "Self-Play 9000"
+			break;
+	}
 }
 
 async function diffUp()
 {
-	if(++diff > 1)
+	if(++diff > 2)
 	{
 		diff--
 	}
