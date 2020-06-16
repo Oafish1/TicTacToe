@@ -6,7 +6,7 @@ let gameActive;
 let currentPlayer;
 let gameState;
 let model;
-let diff = 1;
+let diff = 2;
 
 // Message generating functions
 const currText = () => `${currentPlayer === 1 ? "X" : "O"}`;
@@ -27,16 +27,6 @@ async function init()
 
 async function loadAgent(diff)
 {
-	if (diff == 0)
-	{
-		model = await tf.loadLayersModel('model/5000/model.json');
-		diffDisplay.innerHTML = "5000"
-	}
-	else if (diff == 1)
-	{
-		model = await tf.loadLayersModel('model/20000/model.json');
-		diffDisplay.innerHTML = "20000"
-	}
 	switch(diff)
 	{
 		case 0:
@@ -48,10 +38,14 @@ async function loadAgent(diff)
 			diffDisplay.innerHTML = "20000"
 			break;
 		case 2:
+			model = await tf.loadLayersModel('model/40000/model.json');
+			diffDisplay.innerHTML = "40000"
+			break;
+		case 3:
 			model = await tf.loadLayersModel('model/45x200/model.json');
 			diffDisplay.innerHTML = "9000 Self-Play (Steps of 200)"
 			break;
-		case 3:
+		case 4:
 			model = await tf.loadLayersModel('model/100x200/model.json');
 			diffDisplay.innerHTML = "20000 Self-Play (Steps of 200)"
 			break;
@@ -60,7 +54,7 @@ async function loadAgent(diff)
 
 async function diffUp()
 {
-	if(++diff > 3)
+	if(++diff > 4)
 	{
 		diff--
 	}
@@ -69,7 +63,7 @@ async function diffUp()
 		await loadAgent(diff)
 	}
 	
-	assessmentDisplay.innerHTML = model.predict(tf.tensor([gameState])).dataSync();
+	assessmentDisplay.value = 100 * model.predict(tf.tensor([gameState])).dataSync();
 }
 
 async function diffDown()
@@ -83,7 +77,7 @@ async function diffDown()
 		await loadAgent(diff)
 	}
 	
-	assessmentDisplay.innerHTML = model.predict(tf.tensor([gameState])).dataSync();
+	assessmentDisplay.value = 100 * model.predict(tf.tensor([gameState])).dataSync();
 }
 
 function computerMove()
@@ -106,7 +100,8 @@ function computerMove()
 				mGameState = JSON.parse(JSON.stringify(gameState));
 				mGameState[i][j] = currentPlayer;
 				pred = currentPlayer * model.predict(tf.tensor([mGameState])).dataSync();
-				
+				console.log(JSON.parse(JSON.stringify(mGameState)))
+				console.log(pred)
 				if(pred > bestE)
 				{
 					bestE = pred;
@@ -136,7 +131,6 @@ function handleCellPlayed(clickedCell, clickedCellIndex)
 function handlePlayerChange()
 {
 	currentPlayer = currentPlayer === 1 ? -1 : 1;
-	//statusDisplay.innerHTML = currentPlayerTurn();
 }
 
 
@@ -154,7 +148,7 @@ const winningConditions = [
 function handleResultValidation() {
 	let roundWon = false;
 	
-	assessmentDisplay.innerHTML = model.predict(tf.tensor([gameState])).dataSync();
+	assessmentDisplay.value = 100 * model.predict(tf.tensor([gameState])).dataSync();
 	
 	for (let i = 0; i <= 7; i++)
 	{
@@ -174,7 +168,6 @@ function handleResultValidation() {
 	}
 	if (roundWon)
 	{
-		//statusDisplay.innerHTML = winningMessage();
 		gameActive = false;
 		return;
 	}
@@ -182,7 +175,6 @@ function handleResultValidation() {
 		let roundDraw = !gameState[0].includes(0) && !gameState[1].includes(0) && !gameState[2].includes(0);
 		if (roundDraw)
 		{
-			//statusDisplay.innerHTML = drawMessage();
 			gameActive = false;
 			return;
 		}
@@ -213,11 +205,9 @@ function handleRestartGame()
 	gameActive = true;
 	currentPlayer = 1;
 	gameState = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
-	//statusDisplay.innerHTML = currentPlayerTurn();
 	document.querySelectorAll('.cell').forEach(cell => cell.innerHTML = "");
 	
-	//statusDisplay.innerHTML = currentPlayerTurn();
-	assessmentDisplay.innerHTML = model.predict(tf.tensor([gameState])).dataSync();
+	assessmentDisplay.value = 100 * model.predict(tf.tensor([gameState])).dataSync();
 }
 
 // Listeners

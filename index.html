@@ -22,15 +22,21 @@
             <div data-cell-index="7" class="cell"></div>
             <div data-cell-index="8" class="cell"></div>
         </div>
-		<p class="g_assessment"></p>
+		<br>
 		<button class="g_computer">Computer Move</button>
         <button class="g_restart">Restart Game</button>
 	</section>
+	
+	<section class="eval">
+	<progress class="g_assessment" max=100 min=0 value=50></progress>
+	</section>
+	
 	<section>
-		<h2 class="g_sub">Change Training Method</h2>
+		<h2 class="g_sub">Change Training</h2>
 		<p><span class="diff_val"></span> Games</p>
-		<button class="diff_up">Up</button>
 		<br>
+		<button class="diff_up">Up</button>
+		<br><br>
         <button class="diff_down">Down</button>
     </section>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
