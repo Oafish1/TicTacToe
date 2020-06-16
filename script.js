@@ -1,7 +1,7 @@
 const statusDisplay = document.querySelector('.g_status');
 
 (async() => {
-const model = await tf.loadLayersModel('./model/model.json');
+const model = await tf.loadLayersModel('model/model.json');
 })();
 
 let gameActive = true;
